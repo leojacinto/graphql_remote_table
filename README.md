@@ -1,7 +1,7 @@
 # GraphQL → ServiceNow Remote Table — recreation steps
 
-A genuinely live, zero-copy ServiceNow table backed by a real GraphQL API.
-No stored copy, no staging table, no transform, no proxy, no ngrok. Opening
+A live-connectopm, zero-copy ServiceNow table backed by GraphQL API.
+No stored copy, no staging table, no transform. Opening
 the table triggers a real HTTP call to the real GraphQL API, every time.
 
 Real source used: the free, public, unauthenticated
@@ -9,9 +9,7 @@ Real source used: the free, public, unauthenticated
 
 Instance used: `<your-instance>.service-now.com` (credentials in `.env`).
 
-App scope: `x_snc_gql_lf` (renamed from an earlier `x_snc_zccrest_lf` — that
-name implied a Zero Copy Connector for ERP tie-in that never actually ended
-up being used; renamed once that was settled, old scope fully deleted).
+App scope: `x_snc_gql_lf`
 
 **Now managed as a proper Now SDK / Fluent project** in `fluent-app/`, not
 ad-hoc Table API calls. See "Fluent conversion" below for how and why.
@@ -26,13 +24,6 @@ database** — every query against it runs an associated `sys_script_vtable`
 "Query" script live, which builds rows on the fly via `v_table.addRow(...)`
 and hands them back. Close the list, the data is gone; open it again, the
 script runs again.
-
-This is documented at
-`servicenow-platform/remote-tables/remote-tables.md` in the ServiceNowDocs
-repo — a completely different doc tree from Zero Copy Connector for ERP
-(`integrate-applications/*-zcc.md`), which does **not** support GraphQL as a
-source type at all (its model operation types are only `rest`, `odata`,
-`idoc`, `table`, `functioncall`).
 
 ## 1. The script
 
@@ -86,7 +77,7 @@ curl -u "admin:<password from .env>" \
   "https://<your-instance>.service-now.com/api/now/table/x_snc_gql_lf_country"
 ```
 
-Proof it's genuinely live, not cached or stored: two consecutive calls both
+Proof it's live, not cached or stored: two consecutive calls both
 take real network round-trip time (300-1000ms), not near-instant DB-read
 time, and no `insert` was ever made into this table — it has zero real rows
 by construction.
@@ -149,23 +140,3 @@ script — a different architecture, not attempted here.
 - This is a proof of concept for one GraphQL source (Countries API), not a
   generic "any GraphQL API" onboarding tool — there's no UI to point it at a
   different endpoint without editing the script.
-
-## What was tried and discarded before landing on this
-
-An earlier attempt built a hand-rolled introspection + entity-mapping
-prototype (its own tables, its own "remote table" concept with an explicit
-persistence toggle) to work around Zero Copy Connector for ERP's REST
-onboarding being locked to its Model Manager UI. That entire approach — all
-its tables, script includes, and the Scripted REST API it used — has been
-deleted from the instance. It was real, working code, but it was solving a
-problem (making GraphQL fit into ZCC-for-ERP specifically) that had already
-been correctly identified as unsupported, when the actual native platform
-feature (Remote Tables, `sys_script_vtable`) was sitting there unused the
-whole time and does the job directly, live, without any of that complexity.
-
-Separately: confirmed live in the current release that ZCC-for-ERP's own
-"Remote tables" screen has no "New" button and locks the model/link fields
-on existing records — inserting a custom entry there to surface this table
-centrally is possible only via an unsupported, undocumented workaround
-(bypassing that UI lock through the Table API). Decided not to do that —
-this stands alone as its own scope instead.
