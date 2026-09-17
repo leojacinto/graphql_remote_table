@@ -1,0 +1,9 @@
+.env
+Ganon.gif
+.DS_Store
+
+# Now SDK build artifacts / credentials (also covered inside fluent-app/.gitignore)
+fluent-app/.now/
+fluent-app/dist/
+fluent-app/target/
+fluent-app/node_modules/

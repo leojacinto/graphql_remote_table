@@ -1,0 +1,12 @@
+{
+    "scope": "x_snc_gql_lf",
+    "scopeId": "977c17b23bd38714a0db3141a3e45a08",
+    "name": "GraphQL Live Remote Table LF",
+    "accessControls": {
+        "runtimeAccessTracking": "none"
+    },
+    "licensing": {
+        "enforceLicense": "none"
+    },
+    "description": "Live, zero-copy ServiceNow Remote Table backed by a real GraphQL API"
+}
